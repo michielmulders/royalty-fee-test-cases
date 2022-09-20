@@ -51,7 +51,29 @@ Fallback fee has been set to 1 Hbar. If you comment out the ".setFallbackFee" li
 ```
 
 ### Case 2
-**What happens if there is no fungible value exchanged in a NFT transfer and the buyer does not have the fixed fee token?** (expected: fail)
+**What happens if there is no fungible value exchanged in a NFT transfer and the buyer does not have the fixed fee fallback token but is associated to the fallback token?** (expected: fail)
+
+**Output:**
+
+Fails with insufficient balance error for Bob (buyer): `INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE`.
+
+```text
+- Treasury balance: 5 NFTs of ID:0.0.48294326 and 5 ℏ
+- Alice balance: undefined NFTs of ID:0.0.48294326 and 30 ℏ
+- Bob balance: 0 NFTs of ID:0.0.48294326 and 30 ℏ
+
+ NFT transfer Treasury->Alice status: SUCCESS 
+
+- Treasury balance: 4 NFTs of ID:0.0.48294326 and 5 ℏ
+- Alice balance: 1 NFTs of ID:0.0.48294326 and 30 ℏ
+- Bob balance: 0 NFTs of ID:0.0.48294326 and 30 ℏ
+
+ReceiptStatusError: receipt for transaction 0.0.47741098@1663679731.363621682 contained error status INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE
+...
+```
+
+### Case 3
+**What happens if there is no fungible value exchanged in a NFT transfer and the buyer is not associated with the fixed fee fallback token?** (expected: fail)
 
 **Output:**
 
@@ -72,7 +94,8 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663666531.902932804 co
 ...
 ```
 
-### Case 3
+
+### Case 4
 **What happens if there is an fungible token exchanged in a NFT transfer but the fee collector account is not associated with it?** (expected: fail)
 
 [Docs: Dissociate tokens](https://docs.hedera.com/guides/docs/sdks/tokens/dissociate-tokens-from-an-account)
@@ -82,7 +105,7 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663666531.902932804 co
 The code will fail when sending the `TokenCreateTransaction` with the error: `TOKEN_NOT_ASSOCIATED_TO_FEE_COLLECTOR`.
 
 
-### Case 4
+### Case 5
 **What happens when you add a random token as custom royalty fee to an NFT and then delete this random token on the ledger?** (expected: fail)
 
 [Docs: Delete token](https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token)

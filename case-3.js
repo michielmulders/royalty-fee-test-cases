@@ -13,7 +13,6 @@ const {
   Hbar,
   TokenSupplyType,
   TokenMintTransaction,
-  TokenBurnTransaction,
   TransferTransaction,
   AccountBalanceQuery,
   AccountUpdateTransaction,
@@ -74,8 +73,7 @@ async function main() {
         .setFeeCollectorAccountId(treasuryId)
     );
 
-  // ASSOCIATE TREASURY ACCOUNT TO RANDOM TOKEN (commented out for this test case)
-  /*
+  // ASSOCIATE TREASURY ACCOUNT TO RANDOM TOKEN
   const associateTxTreasury = await new TokenAssociateTransaction()
     .setAccountId(treasuryId)
     .setTokenIds([randomTokenId])
@@ -83,7 +81,6 @@ async function main() {
     .sign(treasuryKey);
   await associateTxTreasury.execute(client);
   console.log(`Random token associated to treasury account \n`)
-  */
 
   // IPFS CONTENT IDENTIFIERS FOR WHICH WE WILL CREATE NFTs
   let CID = [
