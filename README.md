@@ -1,3 +1,16 @@
+# Project setup
+
+In order to run any of the examples, execute the following steps:
+
+```bash
+npm init
+npm install --save @hashgraph/sdk
+npm install dotenv
+# Create .env file
+# Add your operator ID (OPERATOR_ID) and operator key (OPERATOR_PVKEY) to the .env file
+node case-1.js # Run the example you need
+```
+
 # Royalty Fee
 **Definition:** Royalty fee charges a fraction of the value exchanged in a NFT transfer transaction. The fractional value is set by designating the numerator and denominator of the fraction.
 
