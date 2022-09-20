@@ -7,7 +7,7 @@
 - fallback fee(Fixed fee)
 - fee collector account
 
-**Docs**
+**Docs:**
 [Royalty Fee docs](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees#royalty-fee)
 
 ## Test cases:
@@ -61,6 +61,7 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663666531.902932804 co
 
 ### Case 3
 **What happens if there is an fungible token exchanged in a NFT transfer but the fee collector account is not associated with it?** (expected: fail)
+
 [Docs: Dissociate tokens](https://docs.hedera.com/guides/docs/sdks/tokens/dissociate-tokens-from-an-account)
 
 **Output:**
@@ -70,6 +71,7 @@ The code will fail when sending the `TokenCreateTransaction` with the error: `TO
 
 ### Case 4
 **What happens when you add a random token as custom royalty fee to an NFT and then delete this random token on the ledger?** (expected: fail)
+
 [Docs: Delete token](https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token)
 
 **Output:**
