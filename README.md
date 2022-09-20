@@ -55,7 +55,7 @@ Fallback fee has been set to 1 Hbar. If you comment out the ".setFallbackFee" li
 
 **Output:**
 
-Fails with insufficient balance error for Bob (buyer): `INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE`.
+Fails with insufficient balance error for Bob (buyer) because he has 0 tokens: `INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE`. The same error is thrown when he has 1 or 2 tokens of this random token and the fallback fee is set to a higher amount for this token.
 
 ```text
 - Treasury balance: 5 NFTs of ID:0.0.48294326 and 5 ℏ
