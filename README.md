@@ -77,7 +77,7 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663679731.363621682 co
 
 **Output:**
 
-Transfering the NFT from treasury->Alice succeeds because no custom fees are charged when transfering an NFT in/out the treasury account. Next, the transfer between Alice->Bob failsb because Bob has to pay the fallback fee (no value exchanged) but he is not associated to the random token. Error: `TOKEN_NOT_ASSOCIATED_TO_ACCOUNT`.
+Transfering the NFT from treasury->Alice succeeds because no custom fees are charged when transfering an NFT in/out the treasury account. Next, the transfer between Alice->Bob fails because Bob has to pay the fallback fee (no value exchanged) but he is not associated to the random token. Error: `TOKEN_NOT_ASSOCIATED_TO_ACCOUNT`.
 
 ```text
 - Treasury balance: 5 NFTs of ID:0.0.48290038 and 5 ℏ
