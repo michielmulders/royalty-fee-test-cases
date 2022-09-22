@@ -291,6 +291,8 @@ async function main() {
     let balanceCheckTx = await new AccountBalanceQuery()
       .setAccountId(accountId)
       .execute(client);
+      // balance.tokens will be deprecated from November mainnet release (use mirror node)
+      // https://hedera.com/blog/token-information-returned-by-getaccountinfo-and-getaccountbalance-to-be-deprecated
     return [
       balanceCheckTx.hbars.toString(),
       balanceCheckTx.tokens._map.get(tokenId.toString())?.low,
