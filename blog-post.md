@@ -8,7 +8,7 @@ However, this does not apply when transfering from and to the token's treasury a
 
 This blog post will show multiple code examples illustrating the correct way to set a custom royalty fee and also multiple edge cases helping you better understand how the Hedera network works. 
 
-_If you want to play around with the linked code examples yourself, make sure you have a funded account that you can use as the operator account and fund other accounts generated in the examples._
+_If you want to play around with the [code examples](https://github.com/michielmulders/royalty-fee-test-cases) yourself, make sure you have a funded account that you can use as the operator account and fund other accounts generated in the examples._
 
 First, let's look at a regular custom royalty fee code snippet.
 
@@ -48,7 +48,7 @@ let tokenId = nftCreateRx.tokenId;
 console.log(`Created NFT with Token ID: ${tokenId} \n`);
 ```
 
-You can find the full code at [case-normal.js](). This example completes multiple steps:
+You can find the full code at [case-normal.js](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-normal.js). This example completes multiple steps:
 
 1. Transfer NFT from Rreasury->Alice (no royalty fee)
 2. Transfer NFT from Alice->Bob and Bob pays 10 Hbar to Alice (royalty fee is paid)
@@ -110,6 +110,8 @@ Now, let's take a look at some edge cases.
 - Bob balance: 1 NFTs of ID:0.0.48289984 and 29 ℏ
 ```
 
+You can find the full code example at [`case-1.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-1.js).
+
 ## Edge case 2
 
 **What happens if there is no fungible value exchanged in a NFT transfer and the royalty fee schedule doesn't define a fallback fee?**
@@ -134,7 +136,7 @@ Now, let's take a look at some edge cases.
 - Bob balance: 1 NFTs of ID:0.0.48289984 and 30 ℏ
 ```
 
-You can find the full code example at [`case-2.js`]().
+You can find the full code example at [`case-2.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-2.js).
 
 ## Edge case 3
 
@@ -173,7 +175,7 @@ let nftCustomFee = new CustomRoyaltyFee()
     );
 ```
 
-You can find the full code example at [`case-3.js`]().
+You can find the full code example at [`case-3.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-3.js).
 
 ## Edge case 4
 
@@ -196,7 +198,7 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663666531.902932804 co
 ...
 ```
 
-You can find the full code example at [`case-4.js`]().
+You can find the full code example at [`case-4.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-4.js).
 
 ## Edge case 5
 
@@ -204,7 +206,7 @@ You can find the full code example at [`case-4.js`]().
 
 **Output:** The `TokenCreateTransaction` with the error: `TOKEN_NOT_ASSOCIATED_TO_FEE_COLLECTOR`.
 
-You can find the full code example at [`case-5.js`]().
+You can find the full code example at [`case-5.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-5.js).
 
 ## Edge case 6
 
@@ -227,4 +229,4 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663668783.262812175 co
 ...
 ```
 
-You can find the full code example at [`case-6.js`]().
+You can find the full code example at [`case-6.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-6.js).

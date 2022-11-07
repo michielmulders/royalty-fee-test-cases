@@ -6,9 +6,14 @@ In order to run any of the examples, execute the following steps:
 npm init
 npm install --save @hashgraph/sdk
 npm install dotenv
+
 # Create .env file
-# Add your operator ID (OPERATOR_ID) and operator key (OPERATOR_PVKEY) to the .env file
-node case-1.js # Run the example you need
+touch .env
+
+# Add your operator ID (OPERATOR_ID) and operator key (OPERATOR_PVKEY) to .env file
+
+# Then run the example you want
+node case-1.js 
 ```
 
 # Royalty Fee

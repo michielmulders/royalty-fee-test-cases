@@ -55,7 +55,7 @@ async function main() {
   );
 
   const bobKey = PrivateKey.generateED25519();
-  const [bobAccSt, bobId] = await accountCreatorFcn(bobKey, initBalance);
+  const [bobAccStatus, bobId] = await accountCreatorFcn(bobKey, initBalance);
   console.log(
     `- Created bob's account ${bobId} that has a balance of ${initBalance} ℏ`
   );
