@@ -51,6 +51,31 @@ Fallback fee has been set to 1 Hbar. If you comment out the ".setFallbackFee" li
 ```
 
 ### Case 2
+**What happens if there is no fungible value exchanged in a NFT transfer and the royalty fee schedule doesn't define a fallback fee?**
+
+**Output:**
+
+Nothing will be charged when transfering the NFT.
+
+```text
+- Treasury balance: 5 NFTs of ID:0.0.48289984 and 5 ℏ
+- Alice balance: undefined NFTs of ID:0.0.48289984 and 30 ℏ
+- Bob balance: 0 NFTs of ID:0.0.48289984 and 30 ℏ
+
+ NFT transfer Treasury->Alice status: SUCCESS 
+
+- Treasury balance: 4 NFTs of ID:0.0.48289984 and 5 ℏ
+- Alice balance: 1 NFTs of ID:0.0.48289984 and 30 ℏ
+- Bob balance: 0 NFTs of ID:0.0.48289984 and 30 ℏ
+
+ NFT transfer Alice->Bob status: SUCCESS 
+
+- Treasury balance: 4 NFTs of ID:0.0.48289984 and 5 ℏ
+- Alice balance: 0 NFTs of ID:0.0.48289984 and 30 ℏ
+- Bob balance: 1 NFTs of ID:0.0.48289984 and 30 ℏ
+```
+
+### Case 3
 **What happens if there is no fungible value exchanged in a NFT transfer and the buyer does not have the fixed fee fallback token but is associated to the fallback token?** (expected: fail)
 
 **Output:**
@@ -72,7 +97,7 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663679731.363621682 co
 ...
 ```
 
-### Case 3
+### Case 4
 **What happens if there is no fungible value exchanged in a NFT transfer and the buyer is not associated with the fixed fee fallback token?** (expected: fail)
 
 **Output:**
@@ -95,8 +120,8 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663666531.902932804 co
 ```
 
 
-### Case 4
-**What happens if there is an fungible token exchanged in a NFT transfer but the fee collector account is not associated with it?** (expected: fail)
+### Case 5
+**What happens when you create an NFT but the fee collector account is not associated with the fallback fee (CustomFixedFee)?** (expected: fail)
 
 [Docs: Dissociate tokens](https://docs.hedera.com/guides/docs/sdks/tokens/dissociate-tokens-from-an-account)
 
@@ -105,14 +130,14 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663666531.902932804 co
 The code will fail when sending the `TokenCreateTransaction` with the error: `TOKEN_NOT_ASSOCIATED_TO_FEE_COLLECTOR`.
 
 
-### Case 5
+### Case 6
 **What happens when you add a random token as custom royalty fee to an NFT and then delete this random token on the ledger?** (expected: fail)
-
-[Docs: Delete token](https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token)
 
 **Output:**
 
-As the docs mention, it will throw an error `TOKEN_WAS_DELETED` when trying to transfer this NFT when no value is exchanged. So, it means that this NFT can only be exchanged now when transfering Hbar value. 
+As the docs for [deleting a token](https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token) mention, it will throw an error `TOKEN_WAS_DELETED` when trying to transfer this NFT when no value is exchanged. 
+
+It means that you can only exchange this NFT when transfering Hbar value. 
 
 ```text
  NFT transfer Treasury->Alice status: SUCCESS 
@@ -121,8 +146,7 @@ As the docs mention, it will throw an error `TOKEN_WAS_DELETED` when trying to t
 - Alice balance: 20 ℏ NFTs of ID:0.0.48290163 1 and rand token: 10
 - Bob balance: 20 ℏ NFTs of ID:0.0.48290163 0 and rand token: 10
 
-- Random token deleted 
+- Random token deleted
 
 ReceiptStatusError: receipt for transaction 0.0.47741098@1663668783.262812175 contained error status TOKEN_WAS_DELETED
 ...
-```

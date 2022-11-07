@@ -1,46 +1,41 @@
-const {
-  Client,
-  PrivateKey,
-  AccountId,
-  AccountCreateTransaction,
-  AccountBalanceQuery,
-  CustomFixedFee,
-  TokenCreateTransaction,
-  TokenType,
-  TransferTransaction,
-  TokenAssociateTransaction,
-  Hbar,
-  TokenId,
-  CustomRoyaltyFee,
-  TokenSupplyType,
-  AccountUpdateTransaction,
-  TokenInfoQuery,
-  TokenMintTransaction,
-  TokenDeleteTransaction
-} = require("@hashgraph/sdk");
+console.clear();
 require("dotenv").config();
 
-// Transfering a token with custom fee schedules set fails with a token not associated to account error because Alice and Bob are not associated to the token.
-// When adding the association for Alice and Bob to this new random token, it fails with INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE which makes sense because they didn't receive the token
+const {
+  AccountId,
+  PrivateKey,
+  Client,
+  TokenCreateTransaction,
+  TokenInfoQuery,
+  TokenType,
+  CustomRoyaltyFee,
+  CustomFixedFee,
+  Hbar,
+  TokenSupplyType,
+  TokenMintTransaction,
+  TokenBurnTransaction,
+  TransferTransaction,
+  AccountBalanceQuery,
+  AccountUpdateTransaction,
+  TokenAssociateTransaction,
+  TokenId,
+  TokenNftInfoQuery,
+  NftId,
+  AccountCreateTransaction,
+} = require("@hashgraph/sdk");
+
+// Configure accounts and client, and generate needed keys
+const operatorId = AccountId.fromString(process.env.OPERATOR_ID);
+const operatorKey = PrivateKey.fromString(process.env.OPERATOR_PVKEY);
+const client = Client.forTestnet().setOperator(operatorId, operatorKey);
+client.setDefaultMaxTransactionFee(new Hbar(100));
+
+const supplyKey = PrivateKey.generateED25519();
+const adminKey = PrivateKey.generateED25519();
 
 async function main() {
-  const operatorId = AccountId.fromString(process.env.OPERATOR_ID);
-  const operatorKey = PrivateKey.fromString(process.env.OPERATOR_PVKEY);
-  const supplyKey = PrivateKey.generateED25519();
-  const adminKey = PrivateKey.generateED25519();
-
-  // If we weren't able to grab it, we should throw a new error
-  if (operatorId == null || operatorKey == null) {
-    throw new Error(
-      "Environment variables operatorId and operatorKey must be present"
-    );
-  }
-
-  const client = Client.forTestnet().setOperator(operatorId, operatorKey);
-  client.setDefaultMaxTransactionFee(new Hbar(100));
-
-  // Create accounts
-  const initBalance = 20;
+  console.log(`\n- Creating accounts...`);
+  const initBalance = 30;
   const treasuryKey = PrivateKey.generateED25519();
   const [treasuryAccStatus, treasuryId] = await accountCreatorFcn(
     treasuryKey,
@@ -65,72 +60,30 @@ async function main() {
     `- Created bob's account ${bobId} that has a balance of ${initBalance} ℏ`
   );
 
-  // Create random token for treasury account
-  const randomTokenCreateTx = await new TokenCreateTransaction()
-    .setTokenName("USDRandom")
-    .setTokenSymbol("RAND")
-    .setDecimals(1)
-    .setInitialSupply(1000) // 100 tokens
-    .setTokenType(TokenType.FungibleCommon)
-    .setTreasuryAccountId(treasuryId)
-    .setAdminKey(treasuryKey) // need to set this otherwise token is immutable and can't be deleted
-    .freezeWith(client)
-    .sign(treasuryKey);
-
-  const randomTokenCreateSubmit = await randomTokenCreateTx.execute(client);
-  const randomTokenCreateRx = await randomTokenCreateSubmit.getReceipt(client);
-  console.log(
-    "Status of random token: ",
-    randomTokenCreateRx.status.toString()
-  );
-  const randomTokenId = randomTokenCreateRx.tokenId;
-
-  // Associate accounts Alice and Bob
-  const associateTxAliceRandomToken = await new TokenAssociateTransaction()
-    .setAccountId(aliceId)
-    .setTokenIds([randomTokenId])
-    .freezeWith(client)
-    .sign(aliceKey);
-  await associateTxAliceRandomToken.execute(client);
-
-  const associateTxBobRandomToken = await new TokenAssociateTransaction()
-    .setAccountId(bobId)
-    .setTokenIds([randomTokenId])
-    .freezeWith(client)
-    .sign(bobKey);
-  await associateTxBobRandomToken.execute(client);
-
-  // Transfer some of this random token to Alice and Bob
-  const tokenTransferTxRandom = await new TransferTransaction()
-    .addTokenTransfer(randomTokenId, treasuryId, -20)
-    .addTokenTransfer(randomTokenId, aliceId, 10)
-    .addTokenTransfer(randomTokenId, bobId, 10)
-    .freezeWith(client)
-    .sign(treasuryKey);
-
-  const tokenTransferTxRandomSubmit = await tokenTransferTxRandom.execute(
-    client
-  );
-  const tokenTransferRxRandom = await tokenTransferTxRandomSubmit.getReceipt(
-    client
-  );
-  console.log(
-    "Transfer random token treasury->Alice and treasury->Bob ",
-    tokenTransferRxRandom.status.toString()
-  );
-
-  // Create royalty fee
+  // DEFINE CUSTOM FEE SCHEDULE (50% royalty fee - 5/10ths)
+  const randomTokenId = TokenId.fromString("0.0.48114789")
   let nftCustomFee = new CustomRoyaltyFee()
     .setNumerator(5)
-    .setDenominator(10) // 50%
+    .setDenominator(10)
     .setFeeCollectorAccountId(treasuryId)
     //the fallback to random token
     .setFallbackFee(
       new CustomFixedFee()
-        .setAmount(5)
+        .setAmount(10)
         .setDenominatingTokenId(randomTokenId)
         .setFeeCollectorAccountId(treasuryId)
     );
+
+  // ASSOCIATE TREASURY ACCOUNT TO RANDOM TOKEN (commented out for this test case)
+  /*
+  const associateTxTreasury = await new TokenAssociateTransaction()
+    .setAccountId(treasuryId)
+    .setTokenIds([randomTokenId])
+    .freezeWith(client)
+    .sign(treasuryKey);
+  await associateTxTreasury.execute(client);
+  console.log(`Random token associated to treasury account \n`)
+  */
 
   // IPFS CONTENT IDENTIFIERS FOR WHICH WE WILL CREATE NFTs
   let CID = [
@@ -228,22 +181,18 @@ async function main() {
   aB = await bCheckerFcn(aliceId);
   bB = await bCheckerFcn(bobId);
   console.log(
-    `- Treasury balance: ${oB[0]} NFTs of ID:${tokenId} ${oB[1]} and rand token: ${oB[2]}`
+    `- Treasury balance: ${oB[0]} NFTs of ID:${tokenId} and ${oB[1]}`
   );
-  console.log(`- Alice balance: ${aB[0]} NFTs of ID:${tokenId} ${aB[1]} and rand token: ${aB[2]}`);
-  console.log(`- Bob balance: ${bB[0]} NFTs of ID:${tokenId} ${bB[1]} and rand token: ${bB[2]}`);
+  console.log(`- Alice balance: ${aB[0]} NFTs of ID:${tokenId} and ${aB[1]}`);
+  console.log(`- Bob balance: ${bB[0]} NFTs of ID:${tokenId} and ${bB[1]}`);
 
-  // DELETE RANDOM TOKEN FROM TREASURY
-  let tokenDeleteTx = await new TokenDeleteTransaction()
-    .setTokenId(randomTokenId)
-    .freezeWith(client)
-    .sign(treasuryKey);
-  await tokenDeleteTx.execute(client);
-  console.log(`\n- Random token deleted \n`)
-
-  // 2nd NFT TRANSFER NFT Alice->Bob (no value transfered)
+  // 2nd NFT TRANSFER NFT Alice->Bob
   let tokenTransferTx2 = await new TransferTransaction()
     .addNftTransfer(tokenId, 2, aliceId, bobId)
+    // CHANGE FOR DIFFERENT OUTCOME BElOW
+    //if lines "addHbarTransfer" are commented out, the fallback fee will be used since no fungible token was transfered with the NFT
+    // .addHbarTransfer(aliceId, 10) // Alice only receives 5 and 50% (5/10) goes to the treasury account because of the custom fee
+    // .addHbarTransfer(bobId, -10)
     .freezeWith(client)
     .sign(aliceKey); // Regular fee is paid by the operator ID
   tokenTransferTx2Sign = await tokenTransferTx2.sign(bobKey); // Bob has to sign because he has to pay fallback fee
@@ -258,10 +207,10 @@ async function main() {
   aB = await bCheckerFcn(aliceId);
   bB = await bCheckerFcn(bobId);
   console.log(
-    `- Treasury balance: ${oB[0]} NFTs of ID:${tokenId} ${oB[1]} and rand token: ${oB[2]}`
+    `- Treasury balance: ${oB[0]} NFTs of ID:${tokenId} and ${oB[1]}`
   );
-  console.log(`- Alice balance: ${aB[0]} NFTs of ID:${tokenId} ${aB[1]} and rand token: ${aB[2]}`);
-  console.log(`- Bob balance: ${bB[0]} NFTs of ID:${tokenId} ${bB[1]} and rand token: ${bB[2]}`);
+  console.log(`- Alice balance: ${aB[0]} NFTs of ID:${tokenId} and ${aB[1]}`);
+  console.log(`- Bob balance: ${bB[0]} NFTs of ID:${tokenId} and ${bB[1]}`);
 
   client.close();
 
@@ -277,6 +226,17 @@ async function main() {
     return mintRx;
   }
 
+  // BALANCE CHECKER FUNCTION ==========================================
+  async function bCheckerFcn(id) {
+    balanceCheckTx = await new AccountBalanceQuery()
+      .setAccountId(id)
+      .execute(client);
+    return [
+      balanceCheckTx.tokens._map.get(tokenId.toString()),
+      balanceCheckTx.hbars,
+    ];
+  }
+
   // ACCOUNT CREATOR FUNCTION ==========================================
   async function accountCreatorFcn(pvKey, iBal) {
     const response = await new AccountCreateTransaction()
@@ -285,19 +245,6 @@ async function main() {
       .execute(client);
     const receipt = await response.getReceipt(client);
     return [receipt.status, receipt.accountId];
-  }
-
-  async function bCheckerFcn(accountId) {
-    let balanceCheckTx = await new AccountBalanceQuery()
-      .setAccountId(accountId)
-      .execute(client);
-      // balance.tokens will be deprecated from November mainnet release (use mirror node)
-      // https://hedera.com/blog/token-information-returned-by-getaccountinfo-and-getaccountbalance-to-be-deprecated
-    return [
-      balanceCheckTx.hbars.toString(),
-      balanceCheckTx.tokens._map.get(tokenId.toString())?.low,
-      balanceCheckTx.tokens._map.get(randomTokenId.toString())?.low,
-    ];
   }
 }
 

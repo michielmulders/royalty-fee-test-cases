@@ -13,11 +13,11 @@ const {
   Hbar,
   TokenSupplyType,
   TokenMintTransaction,
+  TokenBurnTransaction,
   TransferTransaction,
   AccountBalanceQuery,
   AccountUpdateTransaction,
   TokenAssociateTransaction,
-  TokenId,
   TokenNftInfoQuery,
   NftId,
   AccountCreateTransaction,
@@ -60,27 +60,10 @@ async function main() {
   );
 
   // DEFINE CUSTOM FEE SCHEDULE (50% royalty fee - 5/10ths)
-  const randomTokenId = TokenId.fromString("0.0.48114789")
   let nftCustomFee = new CustomRoyaltyFee()
     .setNumerator(5)
     .setDenominator(10)
     .setFeeCollectorAccountId(treasuryId)
-    //the fallback to random token
-    .setFallbackFee(
-      new CustomFixedFee()
-        .setAmount(10)
-        .setDenominatingTokenId(randomTokenId)
-        .setFeeCollectorAccountId(treasuryId)
-    );
-
-  // ASSOCIATE TREASURY ACCOUNT TO RANDOM TOKEN
-  const associateTxTreasury = await new TokenAssociateTransaction()
-    .setAccountId(treasuryId)
-    .setTokenIds([randomTokenId])
-    .freezeWith(client)
-    .sign(treasuryKey);
-  await associateTxTreasury.execute(client);
-  console.log(`Random token associated to treasury account \n`)
 
   // IPFS CONTENT IDENTIFIERS FOR WHICH WE WILL CREATE NFTs
   let CID = [
@@ -144,7 +127,7 @@ async function main() {
   // MANUAL ASSOCIATION FOR BOB'S ACCOUNT
   let associateBobTx = await new TokenAssociateTransaction()
     .setAccountId(bobId)
-    .setTokenIds([tokenId, randomTokenId])
+    .setTokenIds([tokenId])
     .freezeWith(client)
     .sign(bobKey);
   let associateBobTxSubmit = await associateBobTx.execute(client);

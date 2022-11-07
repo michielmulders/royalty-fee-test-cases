@@ -17,9 +17,6 @@ const {
   AccountBalanceQuery,
   AccountUpdateTransaction,
   TokenAssociateTransaction,
-  TokenId,
-  TokenNftInfoQuery,
-  NftId,
   AccountCreateTransaction,
 } = require("@hashgraph/sdk");
 
@@ -60,27 +57,12 @@ async function main() {
   );
 
   // DEFINE CUSTOM FEE SCHEDULE (50% royalty fee - 5/10ths)
-  const randomTokenId = TokenId.fromString("0.0.48114789")
   let nftCustomFee = new CustomRoyaltyFee()
     .setNumerator(5)
     .setDenominator(10)
     .setFeeCollectorAccountId(treasuryId)
-    //the fallback to random token
-    .setFallbackFee(
-      new CustomFixedFee()
-        .setAmount(10)
-        .setDenominatingTokenId(randomTokenId)
-        .setFeeCollectorAccountId(treasuryId)
-    );
-
-  // ASSOCIATE TREASURY ACCOUNT TO RANDOM TOKEN
-  const associateTxTreasury = await new TokenAssociateTransaction()
-    .setAccountId(treasuryId)
-    .setTokenIds([randomTokenId])
-    .freezeWith(client)
-    .sign(treasuryKey);
-  await associateTxTreasury.execute(client);
-  console.log(`Random token associated to treasury account \n`)
+    //the fallback fee is set to 1 hbar.
+    .setFallbackFee(new CustomFixedFee().setHbarAmount(new Hbar(1)));
 
   // IPFS CONTENT IDENTIFIERS FOR WHICH WE WILL CREATE NFTs
   let CID = [
@@ -144,7 +126,7 @@ async function main() {
   // MANUAL ASSOCIATION FOR BOB'S ACCOUNT
   let associateBobTx = await new TokenAssociateTransaction()
     .setAccountId(bobId)
-    .setTokenIds([tokenId, randomTokenId])
+    .setTokenIds([tokenId])
     .freezeWith(client)
     .sign(bobKey);
   let associateBobTxSubmit = await associateBobTx.execute(client);
@@ -183,16 +165,14 @@ async function main() {
   console.log(`- Alice balance: ${aB[0]} NFTs of ID:${tokenId} and ${aB[1]}`);
   console.log(`- Bob balance: ${bB[0]} NFTs of ID:${tokenId} and ${bB[1]}`);
 
-  // 2nd NFT TRANSFER NFT Alice->Bob
+  // 2nd NFT TRANSFER Alice->Bob
   let tokenTransferTx2 = await new TransferTransaction()
     .addNftTransfer(tokenId, 2, aliceId, bobId)
-    // CHANGE FOR DIFFERENT OUTCOME BElOW
-    //if lines "addHbarTransfer" are commented out, the fallback fee will be used since no fungible token was transfered with the NFT
-    // .addHbarTransfer(aliceId, 10) // Alice only receives 5 and 50% (5/10) goes to the treasury account because of the custom fee
-    // .addHbarTransfer(bobId, -10)
+    .addHbarTransfer(aliceId, 10) // Alice only receives 5 Hbar as 50% (5/10) goes to the treasury account (custom royalty fee)
+    .addHbarTransfer(bobId, -10)
     .freezeWith(client)
     .sign(aliceKey); // Regular fee is paid by the operator ID
-  tokenTransferTx2Sign = await tokenTransferTx2.sign(bobKey); // Bob has to sign because he has to pay fallback fee
+  let tokenTransferTx2Sign = await tokenTransferTx2.sign(bobKey); // Bob has to sign because he has to pay fallback fee
   let tokenTransferSubmit2 = await tokenTransferTx2Sign.execute(client);
   let tokenTransferRx2 = await tokenTransferSubmit2.getReceipt(client);
   console.log(
@@ -200,6 +180,29 @@ async function main() {
   );
 
   // BALANCE CHECK 3
+  oB = await bCheckerFcn(treasuryId);
+  aB = await bCheckerFcn(aliceId);
+  bB = await bCheckerFcn(bobId);
+  console.log(
+    `- Treasury balance: ${oB[0]} NFTs of ID:${tokenId} and ${oB[1]}`
+  );
+  console.log(`- Alice balance: ${aB[0]} NFTs of ID:${tokenId} and ${aB[1]}`);
+  console.log(`- Bob balance: ${bB[0]} NFTs of ID:${tokenId} and ${bB[1]}`);
+
+  // 3rd TRANSFER NFT Bob->Treasury
+  let tokenTransferTx3 = await new TransferTransaction()
+    .addNftTransfer(tokenId, 2, bobId, treasuryId)
+    .freezeWith(client)
+    .sign(bobKey);
+
+  let tokenTransferTx3Sign = await tokenTransferTx3.sign(treasuryKey);
+  let tokenTransferSubmit3 = await tokenTransferTx3Sign.execute(client);
+  let tokenTransferRx3 = await tokenTransferSubmit3.getReceipt(client);
+  console.log(
+    `\n NFT transfer Bob->Treasury status: ${tokenTransferRx3.status} \n`
+  );
+
+  // BALANCE CHECK 4
   oB = await bCheckerFcn(treasuryId);
   aB = await bCheckerFcn(aliceId);
   bB = await bCheckerFcn(bobId);
