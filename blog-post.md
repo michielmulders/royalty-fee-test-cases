@@ -2,19 +2,19 @@
 
 When you create a new non-fungible token using the Hedera Token Service (HTS), you have the possibility to set one or multiple royalty fees. 
 
-You can do this by using the [`CustomRoyaltyFee` method](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees#royalty-fee) which allows you to set all parameters for your custom NFT royalty fee. In its simplest form, each time an NFT is transfered, the Hedera network will charge a fraction of the value exchanged in this transaction. 
+You can do this by using the [`CustomRoyaltyFee` method](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees#royalty-fee), which allows you to set all parameters for your custom NFT royalty fee. In its simplest form, each time an NFT is transferred, the Hedera network will charge a fraction of the value exchanged in this transaction. 
 
-However, this does not apply when transfering from and to the token's treasury account. In case you want or need to return the NFT to the treasury account, you should not have to pay for it. In the same way, it doesn't make sense for the treasury account to pay its royalty fee when sending out NFTs to collectors. 
+However, this does not apply when transfering from and to the token's treasury account. If you need to return the NFT to the treasury account, you should not have to pay for it. In the same way, it doesn't make sense for the treasury account to pay its royalty fee when sending out NFTs to collectors. 
 
-This blog post will show multiple code examples illustrating the correct way to set a custom royalty fee and also multiple edge cases helping you better understand how the Hedera network works. 
+This blog post will show multiple code examples illustrating the correct way to set a custom royalty fee and numerous edge cases to help you better understand how the Hedera network works. 
 
-_If you want to play around with the [code examples](https://github.com/michielmulders/royalty-fee-test-cases) yourself, make sure you have a funded account that you can use as the operator account and fund other accounts generated in the examples._
+_If you want to play around with the [code examples](https://github.com/michielmulders/royalty-fee-test-cases) yourself, make sure you have a funded account you can use as the operator account to fund other accounts generated in the examples._
 
 First, let's look at a regular custom royalty fee code snippet.
 
 ## How to set a custom royalty fee?
 
-Here's an example of a custom royalty fee where we charge a 50% fee on the exchanged value each time an NFT from this collection is transfered. Besides that, if the user doesn't add an Hbar transfer (exchanged value) to an NFT transfer transaction, then we want the user to pay a fallback fee which euqals 1 Hbar. 
+Here's an example of a custom royalty fee where we charge a 50% fee on the exchanged value each time an NFT from this collection is transferred. Besides that, if the user doesn't add an Hbar transfer (exchanged value) to an NFT transfer transaction, we want the user to pay a fallback fee of 1 Hbar. 
 
 ```js
 // DEFINE CUSTOM FEE SCHEDULE (50% royalty fee - 5/10ths)
@@ -50,7 +50,7 @@ console.log(`Created NFT with Token ID: ${tokenId} \n`);
 
 You can find the full code at [case-normal.js](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-normal.js). This example completes multiple steps:
 
-1. Transfer NFT from Rreasury->Alice (no royalty fee)
+1. Transfer NFT from Treasury->Alice (no royalty fee)
 2. Transfer NFT from Alice->Bob and Bob pays 10 Hbar to Alice (royalty fee is paid)
 3. Transfer NFT from Bob->Treasury (no royalty fee)
 
@@ -88,7 +88,7 @@ Now, let's take a look at some edge cases.
 
 ## Edge case 1
 
-**Question:** What happens if there is no fungible value exchanged in a NFT transfer and royalty fee schedule defines a fallback fee?
+**Question:** What happens if no fungible value is exchanged in a NFT transfer and the royalty fee schedule defines a fallback fee?
 
 **Output:** The fallback fee of 1 Hbar is paid.
 
@@ -114,9 +114,9 @@ You can find the full code example at [`case-1.js`](https://github.com/michielmu
 
 ## Edge case 2
 
-**Question:** What happens if there is no fungible value exchanged in a NFT transfer and the royalty fee schedule doesn't define a fallback fee?
+**Question:** What happens if no fungible value is exchanged in a NFT transfer and the royalty fee schedule doesn't define a fallback fee?
 
-**Output:** Nothing will be charged when transfering the NFT. In other words, if you don't set a fallback fee, the royalty fee can be evaded when transfering an NFT between different accounts.
+**Output:** Nothing will be charged when transfering the NFT. In other words, if you don't set a fallback fee, the royalty fee can be evaded when transferring an NFT between different accounts.
 
 ```text
 - Treasury balance: 5 NFTs of ID:0.0.48289984 and 5 ℏ
@@ -140,7 +140,7 @@ You can find the full code example at [`case-2.js`](https://github.com/michielmu
 
 ## Edge case 3
 
-**Question:** What happens if there is no fungible value exchanged in a NFT transfer and the receiver does not have the fixed fee fallback token but is associated to the fallback token?
+**Question:** What happens if no fungible value is exchanged in a NFT transfer and the receiver does not have the fixed fee fallback token but is associated with the fallback token?
 
 **Output:** Fails with insufficient balance error for Bob (receiver) because he has 0 tokens: `INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE`. The same error is thrown when he has one or two tokens of this random token and the fallback fee is set to a higher amount than two.
 
@@ -158,7 +158,7 @@ You can find the full code example at [`case-2.js`](https://github.com/michielmu
 ReceiptStatusError: receipt for transaction 0.0.47741098@1663679731.363621682 contained error status INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE
 ```
 
-Here's a code snippet that shows the royalty fee definition. Bob's account will be associated to this random token.
+Here's a code snippet that shows the royalty fee definition. Bob's account will be associated with this random token.
 
 ```js
 const randomTokenId = TokenId.fromString("0.0.48114789")
@@ -179,7 +179,7 @@ You can find the full code example at [`case-3.js`](https://github.com/michielmu
 
 ## Edge case 4
 
-**Question:** What happens if there is no fungible value exchanged in a NFT transfer and the buyer is not associated with the fixed fee fallback token?
+**Question:** What happens if no fungible value is exchanged in a NFT transfer and the buyer is not associated with the fixed fee fallback token?
 
 **Output:** The transfer between Alice->Bob fails because Bob has to pay the fallback fee (no value exchanged) but he is not associated to the random token. Here, you get the expected `TOKEN_NOT_ASSOCIATED_TO_ACCOUNT` error.
 
@@ -210,11 +210,11 @@ You can find the full code example at [`case-5.js`](https://github.com/michielmu
 
 ## Edge case 6
 
-**Question:** What happens when you add a token as custom royalty fee to an NFT and then delete this token on the ledger?
+**Question:** What happens when you add a token as a custom royalty fee to an NFT and then delete this token on the ledger?
 
-**Output:** As the docs for [deleting a token](https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token) mention, it will throw an error `TOKEN_WAS_DELETED` when trying to transfer this NFT when no value is exchanged. 
+**Output:** As the docs for [deleting a token](https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token) mention, it will throw an error `TOKEN_WAS_DELETED` when transferring this NFT when no value is exchanged. 
 
-It means that you can only exchange this NFT when transfering Hbar value. 
+It means that you can only exchange this NFT when transferring Hbar value. 
 
 ```text
  NFT transfer Treasury->Alice status: SUCCESS 
@@ -230,3 +230,7 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663668783.262812175 co
 ```
 
 You can find the full code example at [`case-6.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-6.js).
+
+
+
+_If you want to learn more, check the [Hedera Token Service](https://docs.hedera.com/guides/docs/sdks/tokens) or [Custom Fees](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees) docs._
