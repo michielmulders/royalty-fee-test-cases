@@ -195,7 +195,8 @@ async function main() {
     .freezeWith(client)
     .sign(bobKey);
 
-  let tokenTransferTx3Sign = await tokenTransferTx3.sign(treasuryKey);
+  // below signature is a bug which will be fixed in release 0.32 - treasury should not sign to get back an NFT
+  let tokenTransferTx3Sign = await tokenTransferTx3.sign(treasuryKey); 
   let tokenTransferSubmit3 = await tokenTransferTx3Sign.execute(client);
   let tokenTransferRx3 = await tokenTransferSubmit3.getReceipt(client);
   console.log(
