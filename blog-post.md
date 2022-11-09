@@ -248,5 +248,10 @@ ReceiptStatusError: receipt for transaction 0.0.47741098@1663668783.262812175 co
 You can find the full code example at [`case-6.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-6.js).
 
 
+# Check out the Code
+
+Check out all code examples on [GitHub](https://github.com/michielmulders/royalty-fee-test-cases).
+
+# Continue Learning
 
 _If you want to learn more, check the [Hedera Token Service](https://docs.hedera.com/guides/docs/sdks/tokens) or [Custom Fees](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees) docs._
