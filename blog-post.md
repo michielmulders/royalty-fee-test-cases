@@ -84,7 +84,23 @@ Starting balances:
 - Bob balance: 0 NFTs of ID:0.0.48830139 and 20 ℏ
 ```
 
-Now, let's take a look at some edge cases. 
+It's also possible to exempt fee collectors from paying royalty fees when they transfer NFTs. With the implementation of [HIP-573](https://hips.hedera.com/hip/hip-573) on mainnet in release v0.31 (November 10th, 2022), you can exempt collection accounts from paying custom fees when exchanging token units, fungible tokens or non-fungible tokens. This [tutorial](https://hedera.com/blog/how-to-exempt-hedera-accounts-from-custom-token-fees) explains the complete setup, but here's a quick snippet showing how to do it.
+
+```js
+const fee1 = new CustomFractionalFee()
+       .setFeeCollectorAccountId(accountId1)
+       .setNumerator(1)
+       .setDenominator(100)
+       .setAllCollectorsAreExempt(true); // new property to exempt fee collectors 
+
+const fee2 = new CustomFractionalFee()
+       .setFeeCollectorAccountId(accountId2)
+       .setNumerator(2)
+       .setDenominator(100)
+       .setAllCollectorsAreExempt(true); // you have to set it for each fee you define
+```
+
+Now, let's take a look at some NFT custom royalty fee edge cases. 
 
 ## Edge case 1
 
