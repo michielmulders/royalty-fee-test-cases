@@ -104,7 +104,7 @@ Now, let's take a look at some NFT custom royalty fee edge cases.
 
 ## Edge case 1
 
-**Question:** What happens if no fungible value is exchanged in a NFT transfer and the royalty fee schedule defines a fallback fee?
+**Question:** What happens if no fungible value is exchanged in an NFT transfer and the royalty fee schedule defines a fallback fee?
 
 **Output:** The fallback fee of 1 Hbar is paid.
 
@@ -130,7 +130,7 @@ You can find the full code example at [`case-1.js`](https://github.com/michielmu
 
 ## Edge case 2
 
-**Question:** What happens if no fungible value is exchanged in a NFT transfer and the royalty fee schedule doesn't define a fallback fee?
+**Question:** What happens if no fungible value is exchanged in an NFT transfer and the royalty fee schedule doesn't define a fallback fee?
 
 **Output:** Nothing will be charged when transfering the NFT. In other words, if you don't set a fallback fee, the royalty fee can be evaded when transferring an NFT between different accounts.
 
@@ -156,7 +156,7 @@ You can find the full code example at [`case-2.js`](https://github.com/michielmu
 
 ## Edge case 3
 
-**Question:** What happens if no fungible value is exchanged in a NFT transfer and the receiver does not have the fixed fee fallback token but is associated with the fallback token?
+**Question:** What happens if no fungible value is exchanged in an NFT transfer and the receiver does not have the fixed fee fallback token but is associated with the fallback token?
 
 **Output:** Fails with insufficient balance error for Bob (receiver) because he has 0 tokens: `INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE`. The same error is thrown when he has one or two tokens of this random token and the fallback fee is set to a higher amount than two.
 
@@ -195,7 +195,7 @@ You can find the full code example at [`case-3.js`](https://github.com/michielmu
 
 ## Edge case 4
 
-**Question:** What happens if no fungible value is exchanged in a NFT transfer and the buyer is not associated with the fixed fee fallback token?
+**Question:** What happens if no fungible value is exchanged in an NFT transfer and the buyer is not associated with the fixed fee fallback token?
 
 **Output:** The transfer between Alice->Bob fails because Bob has to pay the fallback fee (no value exchanged) but he is not associated to the random token. Here, you get the expected `TOKEN_NOT_ASSOCIATED_TO_ACCOUNT` error.
 
