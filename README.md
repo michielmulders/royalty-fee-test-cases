@@ -155,3 +155,19 @@ It means that you can only exchange this NFT when transfering Hbar value.
 
 ReceiptStatusError: receipt for transaction 0.0.47741098@1663668783.262812175 contained error status TOKEN_WAS_DELETED
 ...
+```
+
+### Case 7
+**Can you update the royalty fee for NFTs to any number above 100%?** (expected: 100% is maximum)
+
+**Output:**
+
+This example first sets the royalty fee to 50% (5/10ths) and then updates the fee to 200% (200/100ths). However, the `TokenFeeScheduleUpdateTransaction` fails with the error `ROYALTY_FRACTION_CANNOT_EXCEED_ONE` which means that 100% is the maximum fee you can charge. 
+
+```text
+- Creating accounts...
+- Created NFT with Token ID 0.0.2748981 and fee schedule 5/10ths
+
+ReceiptStatusError: receipt for transaction 0.0.2617920@1675082562.837054051 contained error status ROYALTY_FRACTION_CANNOT_EXCEED_ONE
+...
+```
