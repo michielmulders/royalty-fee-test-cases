@@ -16,7 +16,7 @@ touch .env
 node case-1.js 
 ```
 
-# Royalty Fee
+# Royalty fee
 **Definition:** Royalty fee charges a fraction of the value exchanged in a NFT transfer transaction. The fractional value is set by designating the numerator and denominator of the fraction.
 
 **Fields:**
@@ -27,6 +27,45 @@ node case-1.js
 
 **Docs:**
 [Royalty Fee docs](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees#royalty-fee)
+
+## How to set a custom roaylty fee?
+
+Here's an example of a custom royalty fee where we charge a 50% fee on the exchanged value each time an NFT from this collection is transferred. Besides that, if the user doesn't add an Hbar transfer (exchanged value) to an NFT transfer transaction, we want the user to pay a fallback fee of 1 Hbar.
+
+```js
+// DEFINE CUSTOM FEE SCHEDULE (50% royalty fee - 5/10ths)
+let nftCustomFee = new CustomRoyaltyFee()
+    .setNumerator(5)
+    .setDenominator(10)
+    .setFeeCollectorAccountId(treasuryId)
+    //the fallback fee is set to 1 hbar.
+    .setFallbackFee(new CustomFixedFee().setHbarAmount(new Hbar(1)));
+
+// CREATE NFT WITH CUSTOM FEE
+let nftCreate = await new TokenCreateTransaction()
+    .setTokenName("Fall Collection")
+    .setTokenSymbol("LEAF")
+    .setTokenType(TokenType.NonFungibleUnique)
+    .setDecimals(0)
+    .setInitialSupply(0)
+    .setTreasuryAccountId(treasuryId)
+    .setSupplyType(TokenSupplyType.Finite)
+    .setMaxSupply(5)
+    .setCustomFees([nftCustomFee])
+    .setAdminKey(adminKey)
+    .setSupplyKey(supplyKey)
+    .freezeWith(client)
+    .sign(treasuryKey);
+
+let nftCreateTxSign = await nftCreate.sign(adminKey);
+let nftCreateSubmit = await nftCreateTxSign.execute(client);
+let nftCreateRx = await nftCreateSubmit.getReceipt(client);
+let tokenId = nftCreateRx.tokenId;
+console.log(`Created NFT with Token ID: ${tokenId} \n`);
+```
+
+It's also possible to exempt fee collectors from paying royalty fees when they transfer NFTs. With the implementation of [HIP-573](https://hips.hedera.com/hip/hip-573) on mainnet in release v0.31 (November 10th, 2022), you can exempt collection accounts from paying custom fees when exchanging token units, fungible tokens, or non-fungible tokens. This [tutorial](https://hedera.com/blog/how-to-exempt-hedera-accounts-from-custom-token-fees) explains the complete setup, but here's a quick snippet showing how to do it.
+
 
 ## Test cases:
 
