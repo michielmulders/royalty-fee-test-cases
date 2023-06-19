@@ -210,3 +210,16 @@ This example first sets the royalty fee to 50% (5/10ths) and then updates the fe
 ReceiptStatusError: receipt for transaction 0.0.2617920@1675082562.837054051 contained error status ROYALTY_FRACTION_CANNOT_EXCEED_ONE
 ...
 ```
+
+### Case 8
+**Can you steal funds from someone's account that has auto-association slots available by sending them an NFT with a fallback fee?**
+
+**Output:**
+
+No, stealing funds is impossible because the account receiving the NFT has to sign the fallback fee being withdrawn from their account's balance. Without the receiving user's signature, you'll get an `INVALID_SIGNATURE` error.
+
+```text
+ReceiptStatusError: receipt for transaction 0.0.2617920@1687175554.994288926 contained error status INVALID_SIGNATURE
+...
+```
+

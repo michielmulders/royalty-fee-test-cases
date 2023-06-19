@@ -263,6 +263,19 @@ ReceiptStatusError: receipt for transaction 0.0.2617920@1675082562.837054051 con
 
 You can find the full code example at [`case-7.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-7.js).
 
+## Edge case 8
+
+**Question:** Can you steal funds from someone's account that has auto-association slots available by sending them an NFT with a fallback fee?
+
+**Output:** No, stealing funds is impossible because the account receiving the NFT has to sign the fallback fee being withdrawn from their account's balance. Without the receiving user's signature, you'll get an INVALID_SIGNATURE error. 
+
+```text
+ReceiptStatusError: receipt for transaction 0.0.2617920@1687175554.994288926 contained error status INVALID_SIGNATURE
+...
+```
+
+You can find the full code example at [`case-8.js`](https://github.com/michielmulders/royalty-fee-test-cases/blob/main/case-8.js).
+
 # Check out the Code
 
 Check out all code examples on [GitHub](https://github.com/michielmulders/royalty-fee-test-cases).
